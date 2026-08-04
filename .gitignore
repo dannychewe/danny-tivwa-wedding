@@ -47,6 +47,16 @@ build/Release
 # Dependency directories
 node_modules/
 
+# Next.js build output
+.next/
+out/
+
+# Vercel build cache
+.vercel/
+
+# TypeScript cache
+tsconfig.tsbuildinfo
+
 # Optional npm cache directory
 .npm
 
