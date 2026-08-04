@@ -1,0 +1,8 @@
+<svg width="800" height="1000" viewBox="0 0 800 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="1000" fill="#F8F3EA"/>
+  <circle cx="610" cy="180" r="170" fill="#EADFD2"/>
+  <circle cx="220" cy="790" r="210" fill="#EFE4D6"/>
+  <path d="M192 646C280 513 359 447 450 404C541 361 617 395 617 487C617 579 514 666 410 666C306 666 237 695 192 646Z" fill="#C8A96A" fill-opacity="0.22"/>
+  <text x="84" y="128" fill="#1F1A17" font-family="Georgia, serif" font-size="54">Danny &amp; Tivwa</text>
+  <text x="88" y="188" fill="#8F7851" font-family="Arial, sans-serif" font-size="24" letter-spacing="6">Forever Begins</text>
+</svg>

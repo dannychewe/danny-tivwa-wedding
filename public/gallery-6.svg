@@ -1,0 +1,9 @@
+<svg width="800" height="1000" viewBox="0 0 800 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="1000" fill="#FBF8F1"/>
+  <circle cx="400" cy="500" r="233" stroke="#C8A96A" stroke-width="2"/>
+  <circle cx="400" cy="500" r="174" fill="#F5EEE2"/>
+  <text x="295" y="500" fill="#1F1A17" font-family="Georgia, serif" font-size="112">D</text>
+  <text x="420" y="500" fill="#1F1A17" font-family="Georgia, serif" font-size="112">&amp;</text>
+  <text x="500" y="500" fill="#1F1A17" font-family="Georgia, serif" font-size="112">T</text>
+  <text x="262" y="582" fill="#8F7851" font-family="Arial, sans-serif" font-size="24" letter-spacing="8">EST. 2026</text>
+</svg>
