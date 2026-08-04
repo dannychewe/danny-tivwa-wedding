@@ -33,6 +33,22 @@ function readPhone(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Unknown server error.";
+}
+
+function firestoreErrorResponse(action: string, error: unknown) {
+  console.error(`Failed to ${action}`, error);
+
+  return NextResponse.json(
+    {
+      ok: false,
+      message: `Failed to ${action}. ${getErrorMessage(error)}`
+    },
+    { status: 500 }
+  );
+}
+
 async function findInviteByToken(token: string) {
   const snapshot = await getAdminDb()
     .collection("invites")
@@ -52,7 +68,13 @@ async function findInviteByToken(token: string) {
 }
 
 export async function GET(_request: Request, { params }: RouteContext) {
-  const result = await findInviteByToken(params.token);
+  let result: Awaited<ReturnType<typeof findInviteByToken>>;
+
+  try {
+    result = await findInviteByToken(params.token);
+  } catch (error) {
+    return firestoreErrorResponse("load invitation", error);
+  }
 
   if (!result) {
     return NextResponse.json(
@@ -102,7 +124,13 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     );
   }
 
-  const result = await findInviteByToken(params.token);
+  let result: Awaited<ReturnType<typeof findInviteByToken>>;
+
+  try {
+    result = await findInviteByToken(params.token);
+  } catch (error) {
+    return firestoreErrorResponse("load invitation", error);
+  }
 
   if (!result) {
     return NextResponse.json(
@@ -168,7 +196,11 @@ export async function PATCH(request: Request, { params }: RouteContext) {
           : FieldValue.serverTimestamp();
     }
 
-    await result.ref.update(updates);
+    try {
+      await result.ref.update(updates);
+    } catch (error) {
+      return firestoreErrorResponse("update invitation", error);
+    }
 
     return NextResponse.json({
       ok: true,
@@ -200,16 +232,20 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     );
   }
 
-  await result.ref.update({
-    status,
-    ...(status === "accepted"
-      ? {
-          phone,
-          whatsappNumber: phone
-        }
-      : {}),
-    respondedAt: FieldValue.serverTimestamp()
-  });
+  try {
+    await result.ref.update({
+      status,
+      ...(status === "accepted"
+        ? {
+            phone,
+            whatsappNumber: phone
+          }
+        : {}),
+      respondedAt: FieldValue.serverTimestamp()
+    });
+  } catch (error) {
+    return firestoreErrorResponse("submit invitation response", error);
+  }
 
   return NextResponse.json({
     ok: true,
@@ -234,7 +270,13 @@ export async function DELETE(request: Request, { params }: RouteContext) {
     );
   }
 
-  const result = await findInviteByToken(params.token);
+  let result: Awaited<ReturnType<typeof findInviteByToken>>;
+
+  try {
+    result = await findInviteByToken(params.token);
+  } catch (error) {
+    return firestoreErrorResponse("load invitation", error);
+  }
 
   if (!result) {
     return NextResponse.json(
@@ -243,7 +285,11 @@ export async function DELETE(request: Request, { params }: RouteContext) {
     );
   }
 
-  await result.ref.delete();
+  try {
+    await result.ref.delete();
+  } catch (error) {
+    return firestoreErrorResponse("delete invitation", error);
+  }
 
   return NextResponse.json({
     ok: true

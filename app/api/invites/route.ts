@@ -51,6 +51,10 @@ function validateAdminPassword(password: string | null) {
   };
 }
 
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Unknown server error.";
+}
+
 export async function GET(request: Request) {
   const auth = validateAdminPassword(request.headers.get("x-admin-password"));
 
@@ -64,37 +68,49 @@ export async function GET(request: Request) {
     );
   }
 
-  const snapshot = await getAdminDb().collection("invites").get();
-  const siteUrl = getSiteUrl(request);
-  const invites = snapshot.docs
-    .map((inviteDoc) => {
-      const invite = inviteDoc.data() as InviteRecord;
+  try {
+    const snapshot = await getAdminDb().collection("invites").get();
+    const siteUrl = getSiteUrl(request);
+    const invites = snapshot.docs
+      .map((inviteDoc) => {
+        const invite = inviteDoc.data() as InviteRecord;
 
-      return {
-        id: inviteDoc.id,
-        ...toPublicInvite(invite),
-        inviteUrl: `${siteUrl}/invite/${invite.token}`,
-        createdAt: timestampToIso(invite.createdAt),
-        respondedAt: timestampToIso(invite.respondedAt),
-        attendedAt: timestampToIso(invite.attendedAt)
-      };
-    })
-    .sort((a, b) => {
-      if (!a.createdAt) {
-        return 1;
-      }
+        return {
+          id: inviteDoc.id,
+          ...toPublicInvite(invite),
+          inviteUrl: `${siteUrl}/invite/${invite.token}`,
+          createdAt: timestampToIso(invite.createdAt),
+          respondedAt: timestampToIso(invite.respondedAt),
+          attendedAt: timestampToIso(invite.attendedAt)
+        };
+      })
+      .sort((a, b) => {
+        if (!a.createdAt) {
+          return 1;
+        }
 
-      if (!b.createdAt) {
-        return -1;
-      }
+        if (!b.createdAt) {
+          return -1;
+        }
 
-      return b.createdAt.localeCompare(a.createdAt);
+        return b.createdAt.localeCompare(a.createdAt);
+      });
+
+    return NextResponse.json({
+      ok: true,
+      invites
     });
+  } catch (error) {
+    console.error("Failed to load invites", error);
 
-  return NextResponse.json({
-    ok: true,
-    invites
-  });
+    return NextResponse.json(
+      {
+        ok: false,
+        message: `Failed to load invitations. ${getErrorMessage(error)}`
+      },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: Request) {
@@ -147,10 +163,22 @@ export async function POST(request: Request) {
     status: "pending"
   };
 
-  await getAdminDb().collection("invites").add({
-    ...invite,
-    createdAt: FieldValue.serverTimestamp()
-  });
+  try {
+    await getAdminDb().collection("invites").add({
+      ...invite,
+      createdAt: FieldValue.serverTimestamp()
+    });
+  } catch (error) {
+    console.error("Failed to create invite", error);
+
+    return NextResponse.json(
+      {
+        ok: false,
+        message: `Failed to create invitation. ${getErrorMessage(error)}`
+      },
+      { status: 500 }
+    );
+  }
 
   const inviteUrl = `${getSiteUrl(request)}/invite/${invite.token}`;
 
