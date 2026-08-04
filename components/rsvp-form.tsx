@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { readJsonResponse } from "@/lib/http";
 
 type FormState = {
   name: string;
@@ -50,10 +51,10 @@ export function RSVPForm() {
         })
       });
 
-      const result = (await response.json()) as {
+      const result = await readJsonResponse<{
         ok?: boolean;
         message?: string;
-      };
+      }>(response);
 
       if (!response.ok || !result.ok) {
         throw new Error(result.message || "Failed to submit RSVP");

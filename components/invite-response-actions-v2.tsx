@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { readJsonResponse } from "@/lib/http";
 import type { InviteStatus } from "@/lib/invites";
 
 type InviteResponseActionsV2Props = {
@@ -225,7 +226,7 @@ export function InviteResponseActionsV2({
         })
       });
 
-      const result = (await response.json()) as {
+      const result = await readJsonResponse<{
         ok?: boolean;
         message?: string;
         invite?: {
@@ -233,7 +234,7 @@ export function InviteResponseActionsV2({
           phone?: string;
           whatsappNumber?: string;
         };
-      };
+      }>(response);
 
       if (!response.ok || !result.ok || !result.invite) {
         throw new Error(result.message || "Failed to update invitation.");

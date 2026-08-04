@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { AdminInviteCreator } from "@/components/admin-invite-creator";
+import { readJsonResponse } from "@/lib/http";
 import type { AdminInvite, InviteStatus } from "@/lib/invites";
 
 type InviteListResponse = {
@@ -123,7 +124,7 @@ export function AdminDashboardV2() {
           "x-admin-password": passwordToUse
         }
       });
-      const result = (await response.json()) as InviteListResponse;
+      const result = await readJsonResponse<InviteListResponse>(response);
 
       if (!response.ok || !result.ok || !result.invites) {
         throw new Error(result.message || "Failed to load invitations.");
@@ -188,10 +189,10 @@ export function AdminDashboardV2() {
           whatsappNumber: editingInvite.phone
         })
       });
-      const result = (await response.json()) as {
+      const result = await readJsonResponse<{
         ok?: boolean;
         message?: string;
-      };
+      }>(response);
 
       if (!response.ok || !result.ok) {
         throw new Error(result.message || "Failed to update invitation.");
@@ -227,10 +228,10 @@ export function AdminDashboardV2() {
           "x-admin-password": activePassword
         }
       });
-      const result = (await response.json()) as {
+      const result = await readJsonResponse<{
         ok?: boolean;
         message?: string;
-      };
+      }>(response);
 
       if (!response.ok || !result.ok) {
         throw new Error(result.message || "Failed to delete invitation.");
@@ -263,10 +264,10 @@ export function AdminDashboardV2() {
           attended: !invite.attended
         })
       });
-      const result = (await response.json()) as {
+      const result = await readJsonResponse<{
         ok?: boolean;
         message?: string;
-      };
+      }>(response);
 
       if (!response.ok || !result.ok) {
         throw new Error(result.message || "Failed to update attendance.");

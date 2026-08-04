@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { readJsonResponse } from "@/lib/http";
 
 type CreatedInvite = {
   inviteUrl: string;
@@ -44,10 +45,10 @@ export function AdminInviteCreator({ password, onCreated }: AdminInviteCreatorPr
         })
       });
 
-      const result = (await response.json()) as {
+      const result = await readJsonResponse<{
         ok?: boolean;
         message?: string;
-      } & Partial<CreatedInvite>;
+      } & Partial<CreatedInvite>>(response);
 
       if (!response.ok || !result.ok || !result.inviteUrl || !result.invite) {
         throw new Error(result.message || "Failed to create invitation.");
