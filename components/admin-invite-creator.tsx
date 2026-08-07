@@ -21,7 +21,7 @@ type AdminInviteCreatorProps = {
 
 export function AdminInviteCreator({ password, onCreated }: AdminInviteCreatorProps) {
   const [name, setName] = useState("");
-  const [giftAmount, setGiftAmount] = useState("500");
+  const [giftAmount, setGiftAmount] = useState("300");
   const [guestCount, setGuestCount] = useState("1");
   const [inviteType, setInviteType] = useState("standard");
   const [createdInvite, setCreatedInvite] = useState<CreatedInvite | null>(null);
@@ -65,7 +65,7 @@ export function AdminInviteCreator({ password, onCreated }: AdminInviteCreatorPr
         invite: result.invite
       });
       setName("");
-      setGiftAmount("500");
+      setGiftAmount("300");
       setGuestCount("1");
       setInviteType("standard");
       onCreated?.();
@@ -110,7 +110,7 @@ export function AdminInviteCreator({ password, onCreated }: AdminInviteCreatorPr
             </span>
             <input
               required
-              min="500"
+              min="300"
               step="50"
               type="number"
               value={giftAmount}

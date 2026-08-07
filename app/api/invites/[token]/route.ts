@@ -182,9 +182,9 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     if (body.giftAmount !== undefined) {
       const giftAmount = normalizeGiftAmount(body.giftAmount);
 
-      if (giftAmount === null || giftAmount < 500) {
+      if (giftAmount === null || giftAmount < 300) {
         return NextResponse.json(
-          { ok: false, message: "Gift amount must be at least ZMW 500." },
+          { ok: false, message: "Gift amount must be at least ZMW 300." },
           { status: 400 }
         );
       }

@@ -733,7 +733,7 @@ export function AdminDashboardV2() {
                 </span>
                 <input
                   required
-                  min="500"
+                  min="300"
                   step="50"
                   type="number"
                   value={editingInvite.giftAmount}
