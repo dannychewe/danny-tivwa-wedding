@@ -3,7 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { AdminInviteCreator } from "@/components/admin-invite-creator";
 import { readJsonResponse } from "@/lib/http";
-import type { AdminInvite, InviteStatus } from "@/lib/invites";
+import type { AdminInvite, InviteStatus, InviteType } from "@/lib/invites";
 
 type InviteListResponse = {
   ok?: boolean;
@@ -15,6 +15,8 @@ type EditInviteState = {
   token: string;
   name: string;
   giftAmount: string;
+  guestCount: string;
+  inviteType: InviteType;
   status: InviteStatus;
   phone: string;
 };
@@ -23,6 +25,11 @@ const statusLabels: Record<InviteStatus, string> = {
   pending: "Pending",
   accepted: "Accepted",
   rejected: "Rejected"
+};
+
+const inviteTypeLabels: Record<InviteType, string> = {
+  standard: "Standard",
+  guestOfHonor: "Guest of Honour"
 };
 
 function formatDate(value: string | null) {
@@ -38,6 +45,10 @@ function formatDate(value: string | null) {
 
 function formatAmount(amount: number) {
   return `ZMW ${amount.toLocaleString()}+`;
+}
+
+function formatSeats(count: number) {
+  return `${count} ${count === 1 ? "seat" : "seats"}`;
 }
 
 export function AdminDashboardV2() {
@@ -73,6 +84,34 @@ export function AdminDashboardV2() {
 
   const attendedCount = useMemo(
     () => invites.filter((invite) => invite.attended).length,
+    [invites]
+  );
+
+  const seatCounts = useMemo(
+    () =>
+      invites.reduce(
+        (current, invite) => {
+          const guestCount = invite.guestCount;
+
+          return {
+            all: current.all + guestCount,
+            pending:
+              current.pending + (invite.status === "pending" ? guestCount : 0),
+            accepted:
+              current.accepted + (invite.status === "accepted" ? guestCount : 0),
+            rejected:
+              current.rejected + (invite.status === "rejected" ? guestCount : 0),
+            attended: current.attended + (invite.attended ? guestCount : 0)
+          };
+        },
+        {
+          all: 0,
+          pending: 0,
+          accepted: 0,
+          rejected: 0,
+          attended: 0
+        }
+      ),
     [invites]
   );
 
@@ -156,6 +195,8 @@ export function AdminDashboardV2() {
       token: invite.token,
       name: invite.name,
       giftAmount: String(invite.giftAmount),
+      guestCount: String(invite.guestCount),
+      inviteType: invite.inviteType,
       status: invite.status,
       phone: invite.whatsappNumber || invite.phone || ""
     });
@@ -184,6 +225,8 @@ export function AdminDashboardV2() {
         body: JSON.stringify({
           name: editingInvite.name,
           giftAmount: Number(editingInvite.giftAmount),
+          guestCount: Number(editingInvite.guestCount),
+          inviteType: editingInvite.inviteType,
           status: editingInvite.status,
           phone: editingInvite.phone,
           whatsappNumber: editingInvite.phone
@@ -327,27 +370,37 @@ export function AdminDashboardV2() {
         <div className="card-surface p-5">
           <p className="text-xs uppercase tracking-[0.25em] text-gold">All Gifts</p>
           <p className="mt-3 text-2xl text-ink">{formatAmount(totals.all)}</p>
-          <p className="mt-2 text-sm text-ink/55">{invites.length} invite(s)</p>
+          <p className="mt-2 text-sm text-ink/55">
+            {invites.length} invite(s), {formatSeats(seatCounts.all)}
+          </p>
         </div>
         <div className="card-surface p-5">
           <p className="text-xs uppercase tracking-[0.25em] text-gold">Pending</p>
           <p className="mt-3 text-2xl text-ink">{formatAmount(totals.pending)}</p>
-          <p className="mt-2 text-sm text-ink/55">{counts.pending} invite(s)</p>
+          <p className="mt-2 text-sm text-ink/55">
+            {counts.pending} invite(s), {formatSeats(seatCounts.pending)}
+          </p>
         </div>
         <div className="card-surface p-5">
           <p className="text-xs uppercase tracking-[0.25em] text-gold">Accepted</p>
           <p className="mt-3 text-2xl text-ink">{formatAmount(totals.accepted)}</p>
-          <p className="mt-2 text-sm text-ink/55">{counts.accepted} invite(s)</p>
+          <p className="mt-2 text-sm text-ink/55">
+            {counts.accepted} invite(s), {formatSeats(seatCounts.accepted)}
+          </p>
         </div>
         <div className="card-surface p-5">
           <p className="text-xs uppercase tracking-[0.25em] text-gold">Rejected</p>
           <p className="mt-3 text-2xl text-ink">{formatAmount(totals.rejected)}</p>
-          <p className="mt-2 text-sm text-ink/55">{counts.rejected} invite(s)</p>
+          <p className="mt-2 text-sm text-ink/55">
+            {counts.rejected} invite(s), {formatSeats(seatCounts.rejected)}
+          </p>
         </div>
         <div className="card-surface p-5">
           <p className="text-xs uppercase tracking-[0.25em] text-gold">Attended</p>
-          <p className="mt-3 text-2xl text-ink">{attendedCount}</p>
-          <p className="mt-2 text-sm text-ink/55">checked in</p>
+          <p className="mt-3 text-2xl text-ink">{formatSeats(seatCounts.attended)}</p>
+          <p className="mt-2 text-sm text-ink/55">
+            {attendedCount} invite(s) checked in
+          </p>
         </div>
       </div>
 
@@ -438,6 +491,12 @@ export function AdminDashboardV2() {
                   <h3 className="text-xl leading-tight text-ink">{invite.name}</h3>
                   <p className="mt-1 text-sm text-ink/60">
                     {formatAmount(invite.giftAmount)}
+                  </p>
+                  <p className="mt-1 text-sm text-ink/60">
+                    {formatSeats(invite.guestCount)}
+                  </p>
+                  <p className="mt-1 text-sm text-ink/60">
+                    {inviteTypeLabels[invite.inviteType]}
                   </p>
                 </div>
 
@@ -536,7 +595,9 @@ export function AdminDashboardV2() {
             <thead className="border-b border-gold/15 bg-cream/70 text-xs uppercase tracking-[0.18em] text-ink/45">
               <tr>
                 <th className="px-6 py-4 font-semibold">Guest</th>
+                <th className="px-6 py-4 font-semibold">Type</th>
                 <th className="px-6 py-4 font-semibold">Gift</th>
+                <th className="px-6 py-4 font-semibold">Seats</th>
                 <th className="px-6 py-4 font-semibold">WhatsApp / Phone</th>
                 <th className="px-6 py-4 font-semibold">Status</th>
                 <th className="px-6 py-4 font-semibold">Attendance</th>
@@ -553,7 +614,13 @@ export function AdminDashboardV2() {
                 >
                   <td className="px-6 py-4 font-medium text-ink">{invite.name}</td>
                   <td className="px-6 py-4 text-ink/65">
+                    {inviteTypeLabels[invite.inviteType]}
+                  </td>
+                  <td className="px-6 py-4 text-ink/65">
                     {formatAmount(invite.giftAmount)}
+                  </td>
+                  <td className="px-6 py-4 text-ink/65">
+                    {formatSeats(invite.guestCount)}
                   </td>
                   <td className="px-6 py-4 text-ink/65">
                     {invite.whatsappNumber || invite.phone || "-"}
@@ -680,6 +747,48 @@ export function AdminDashboardV2() {
                   className="w-full bg-transparent px-4 py-3 outline-none"
                 />
               </div>
+            </label>
+
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-ink/75">
+                Guests / Seats
+              </span>
+              <input
+                required
+                min="1"
+                step="1"
+                type="number"
+                value={editingInvite.guestCount}
+                onChange={(event) =>
+                  setEditingInvite((current) =>
+                    current
+                      ? { ...current, guestCount: event.target.value }
+                      : current
+                  )
+                }
+                className="w-full rounded-2xl border border-gold/20 bg-cream px-4 py-3 outline-none transition focus:border-gold"
+              />
+            </label>
+
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-ink/75">Invite Type</span>
+              <select
+                value={editingInvite.inviteType}
+                onChange={(event) =>
+                  setEditingInvite((current) =>
+                    current
+                      ? {
+                          ...current,
+                          inviteType: event.target.value as InviteType
+                        }
+                      : current
+                  )
+                }
+                className="w-full rounded-2xl border border-gold/20 bg-cream px-4 py-3 outline-none transition focus:border-gold"
+              >
+                <option value="standard">Standard Invite</option>
+                <option value="guestOfHonor">Guest of Honour</option>
+              </select>
             </label>
 
             <label className="block space-y-2">

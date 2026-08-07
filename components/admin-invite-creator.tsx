@@ -8,6 +8,8 @@ type CreatedInvite = {
   invite: {
     name: string;
     giftAmount: number;
+    guestCount: number;
+    inviteType: string;
     status: string;
   };
 };
@@ -20,6 +22,8 @@ type AdminInviteCreatorProps = {
 export function AdminInviteCreator({ password, onCreated }: AdminInviteCreatorProps) {
   const [name, setName] = useState("");
   const [giftAmount, setGiftAmount] = useState("500");
+  const [guestCount, setGuestCount] = useState("1");
+  const [inviteType, setInviteType] = useState("standard");
   const [createdInvite, setCreatedInvite] = useState<CreatedInvite | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -41,6 +45,8 @@ export function AdminInviteCreator({ password, onCreated }: AdminInviteCreatorPr
         body: JSON.stringify({
           name,
           giftAmount: Number(giftAmount),
+          guestCount: Number(guestCount),
+          inviteType,
           password
         })
       });
@@ -60,6 +66,8 @@ export function AdminInviteCreator({ password, onCreated }: AdminInviteCreatorPr
       });
       setName("");
       setGiftAmount("500");
+      setGuestCount("1");
+      setInviteType("standard");
       onCreated?.();
     } catch (error) {
       setErrorMessage(
@@ -112,6 +120,33 @@ export function AdminInviteCreator({ password, onCreated }: AdminInviteCreatorPr
           </div>
         </label>
 
+        <label className="block space-y-2">
+          <span className="text-sm font-medium text-ink/75">
+            Guests / Seats
+          </span>
+          <input
+            required
+            min="1"
+            step="1"
+            type="number"
+            value={guestCount}
+            onChange={(event) => setGuestCount(event.target.value)}
+            className="w-full rounded-2xl border border-gold/20 bg-cream px-4 py-3 outline-none transition focus:border-gold"
+          />
+        </label>
+
+        <label className="block space-y-2">
+          <span className="text-sm font-medium text-ink/75">Invite Type</span>
+          <select
+            value={inviteType}
+            onChange={(event) => setInviteType(event.target.value)}
+            className="w-full rounded-2xl border border-gold/20 bg-cream px-4 py-3 outline-none transition focus:border-gold"
+          >
+            <option value="standard">Standard Invite</option>
+            <option value="guestOfHonor">Guest of Honour</option>
+          </select>
+        </label>
+
         <button
           type="submit"
           disabled={loading}
@@ -140,6 +175,15 @@ export function AdminInviteCreator({ password, onCreated }: AdminInviteCreatorPr
               </h2>
               <p className="mt-2 text-sm text-ink/65">
                 Gift: ZMW {createdInvite.invite.giftAmount.toLocaleString()}+
+              </p>
+              <p className="mt-1 text-sm text-ink/65">
+                Seats: {createdInvite.invite.guestCount}
+              </p>
+              <p className="mt-1 text-sm text-ink/65">
+                Type:{" "}
+                {createdInvite.invite.inviteType === "guestOfHonor"
+                  ? "Guest of Honour"
+                  : "Standard Invite"}
               </p>
             </div>
 

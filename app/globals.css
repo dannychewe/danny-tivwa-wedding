@@ -1,9 +1,18 @@
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/playfair-display/400.css";
+@import "@fontsource/playfair-display/400-italic.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   color-scheme: light;
+  --font-inter: "Inter";
+  --font-playfair: "Playfair Display";
 }
 
 html {
@@ -39,6 +48,12 @@ h4 {
 
 .eyebrow {
   @apply text-[11px] font-semibold uppercase tracking-[0.22em] text-gold sm:text-xs sm:tracking-[0.35em];
+}
+
+.couple-title {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 .section-title {

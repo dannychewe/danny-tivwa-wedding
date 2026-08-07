@@ -3,6 +3,8 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getAdminDb } from "@/lib/firebase-admin";
 import {
   normalizeGiftAmount,
+  normalizeGuestCount,
+  normalizeInviteType,
   toPublicInvite,
   type InviteRecord,
   type InviteStatus
@@ -18,6 +20,8 @@ type RespondRequest = {
   status?: unknown;
   name?: unknown;
   giftAmount?: unknown;
+  guestCount?: unknown;
+  inviteType?: unknown;
   phone?: unknown;
   whatsappNumber?: unknown;
   attended?: unknown;
@@ -188,6 +192,23 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       updates.giftAmount = giftAmount;
     }
 
+    if (body.guestCount !== undefined) {
+      const guestCount = normalizeGuestCount(body.guestCount);
+
+      if (guestCount === null || guestCount < 1) {
+        return NextResponse.json(
+          { ok: false, message: "Guest count must be at least 1." },
+          { status: 400 }
+        );
+      }
+
+      updates.guestCount = guestCount;
+    }
+
+    if (body.inviteType !== undefined) {
+      updates.inviteType = normalizeInviteType(body.inviteType);
+    }
+
     if (body.status) {
       updates.status = body.status;
       updates.respondedAt =
@@ -209,6 +230,12 @@ export async function PATCH(request: Request, { params }: RouteContext) {
         name: (updates.name as string | undefined) ?? result.invite.name,
         giftAmount:
           (updates.giftAmount as number | undefined) ?? result.invite.giftAmount,
+        guestCount:
+          (updates.guestCount as number | undefined) ??
+          (result.invite.guestCount ?? 1),
+        inviteType:
+          (updates.inviteType as InviteRecord["inviteType"] | undefined) ??
+          result.invite.inviteType,
         status: (updates.status as InviteStatus | undefined) ?? result.invite.status,
         phone: (updates.phone as string | undefined) ?? result.invite.phone,
         whatsappNumber:

@@ -4,6 +4,8 @@ import { getAdminDb } from "@/lib/firebase-admin";
 import {
   createInviteToken,
   normalizeGiftAmount,
+  normalizeGuestCount,
+  normalizeInviteType,
   timestampToIso,
   toPublicInvite,
   type InviteRecord
@@ -12,6 +14,8 @@ import {
 type CreateInviteRequest = {
   name?: unknown;
   giftAmount?: unknown;
+  guestCount?: unknown;
+  inviteType?: unknown;
   password?: unknown;
 };
 
@@ -141,6 +145,8 @@ export async function POST(request: Request) {
 
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const giftAmount = normalizeGiftAmount(body.giftAmount);
+  const guestCount = normalizeGuestCount(body.guestCount ?? 1);
+  const inviteType = normalizeInviteType(body.inviteType);
 
   if (!name) {
     return NextResponse.json(
@@ -156,9 +162,18 @@ export async function POST(request: Request) {
     );
   }
 
+  if (guestCount === null || guestCount < 1) {
+    return NextResponse.json(
+      { ok: false, message: "Guest count must be at least 1." },
+      { status: 400 }
+    );
+  }
+
   const invite: InviteRecord = {
     name,
     giftAmount,
+    guestCount,
+    inviteType,
     token: createInviteToken(),
     status: "pending"
   };
