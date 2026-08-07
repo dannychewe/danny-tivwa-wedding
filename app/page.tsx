@@ -60,7 +60,7 @@ const gifts = [
 ];
 
 const galleryImages = [
-  { src: "/gallery-1.svg", alt: "Danny and Tivwa portrait illustration" },
+  { src: "/gallery-1.svg", alt: "Danny and Filoza portrait illustration" },
   { src: "/gallery-2.svg", alt: "Romantic floral composition" },
   { src: "/gallery-3.svg", alt: "Elegant wedding table setting" },
   { src: "/gallery-4.svg", alt: "Soft candlelit wedding mood board" },
@@ -77,7 +77,7 @@ export default function Home() {
           <header className="py-4">
             <div className="flex items-center justify-between">
             <div className="text-xs uppercase tracking-[0.22em] text-ink/60 sm:text-sm sm:tracking-[0.35em]">
-              Danny & Tivwa
+              Danny & Filoza
             </div>
             <nav className="hidden gap-6 text-sm text-ink/70 md:flex">
               <a href="#story" className="transition hover:text-ink">
@@ -128,7 +128,7 @@ export default function Home() {
               <h1 className="mt-5 text-5xl leading-[0.95] text-ink sm:mt-6 sm:text-6xl lg:text-7xl">
                 Danny
                 <span className="mx-2 inline-block text-gold sm:mx-3">&</span>
-                Tivwa
+                Filoza
               </h1>
               <p className="mt-6 max-w-xl text-base leading-8 text-ink/72 sm:text-lg">
                 We invite you to witness the beginning of our forever. Join us for
@@ -446,7 +446,7 @@ export default function Home() {
 
       <footer className="border-t border-gold/15 pb-28 pt-10 md:py-10">
         <div className="section-shell flex flex-col gap-3 text-center sm:text-left">
-          <p className="text-xl text-ink">Danny & Tivwa</p>
+          <p className="text-xl text-ink">Danny & Filoza</p>
           <p className="text-xs uppercase tracking-[0.18em] text-ink/45 sm:text-sm sm:tracking-[0.25em]">
             September 20, 2026 • Lusaka
           </p>
